@@ -18,6 +18,9 @@ class Neuron:
         self.input_weights = input_weights
         self.bias = bias
 
+        self.new_input_weights = self.input_weights[:]
+        self.new_bias = self.bias
+
         self.reset()
 
     def reset(self):
@@ -32,14 +35,21 @@ class Neuron:
         Prepare a neuron for firing again
         """
         self.fired = False
-        self.fire_value = 0
+        self.fire_value = None
 
     def reset_back_propagate(self):
         """
         Prepare a neuron for back propagating again
         """
         self.back_propagated = False
-        self.back_propagate_value = 0
+        self.back_propagate_value = None
+
+    def set_new_weights(self):
+        """
+        Exchange our old weights for our new ones
+        """
+        self.input_weights = self.new_input_weights[:]
+        self.bias = self.new_bias
 
     def get_weight(self, neuron):
         """
@@ -59,7 +69,7 @@ class Neuron:
         self.fire_value = sigmoid(weighted_sum + self.bias)
         return self.fire_value
 
-    def back_propogate(self):
+    def back_propagate(self, step_size=0.1):
         """
         Return the product of the partial derivatives up
         to this neuron. (This is the value the weights coming in
@@ -69,20 +79,21 @@ class Neuron:
             return self.back_propagate_value
 
         self.back_propagated = True
-        weighted_sum = sum(output.back_propogate() * output.get_weight(self) for output in self.outputs)
-        self.back_propogate_value = weighted_sum * self.fire_value * (1 - self.fire_value)
-        return self.back_propogate_value
+        weighted_sum = sum(output.back_propagate() * output.get_weight(self) for output in self.outputs)
+        self.back_propagate_value = weighted_sum * self.fire_value * (1 - self.fire_value)
+        self.update_new_weights(step_size)
+        return self.back_propagate_value
 
-    def update_weights(self, step_size=0.1):
+    def update_new_weights(self, step_size=0.1):
         """
-        Update this neuron's weights and bias using gradient descent
+        Update the new weights and bias using gradient descent
         with the partial derivatives calculated during
         back propagation.
         """
+        
         for i in range(len(self.input_weights)):
-            self.input_weights[i] -= self.neurons[i].fire() * self.back_propogate_value * step_size
-
-        self.bias -= self.back_propogate_value * step_size
+            self.new_input_weights[i] -= self.inputs[i].fire() * self.back_propagate_value * step_size
+        self.new_bias -= self.back_propagate_value * step_size
         
 
 class Input:
@@ -97,7 +108,7 @@ class Input:
         self.value = value
 
     def reset(self):
-        pass
+        self.value = None
 
     def fire(self):
         return self.value
@@ -108,19 +119,16 @@ class OutputNeuron(Neuron):
     but it has no outputs
     """
     def __init__(self, inputs, input_weights, bias):
-        self.inputs = inputs
-        self.input_weights = input_weights
-        self.bias = bias
+        super().__init__(inputs, [], input_weights, bias)
 
-        self.reset()
-
-    def back_propogate(self, expected):
+    def back_propagate(self, expected=None, step_size=0.1):
         if self.back_propagated:
             return self.back_propagate_value
 
         self.back_propagated = True
-        self.back_propogate_value = (expected - self.fire_value) * self.fire_value * (1 - self.fire_value)
-        return self.back_propogate_value
+        self.back_propagate_value = (self.fire_value - expected) * self.fire_value * (1 - self.fire_value)
+        self.update_new_weights(step_size)
+        return self.back_propagate_value
 
     
 class RandomNeuron(Neuron):

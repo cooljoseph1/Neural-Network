@@ -50,31 +50,31 @@ class Network:
     def compute_outputs(self, inputs):
         """
         Calculate the outputs for given inputs
-        """
+        """        
         for input, input_neuron in zip(inputs, self.neurons[0]):
             input_neuron.set_value(input)
 
-        self.outputs = [output_neuron.fire() for output_neuron in self.neurons[-1]]
-        return self.outputs
+        outputs = [output_neuron.fire() for output_neuron in self.neurons[-1]]        
+        return outputs
 
-    def back_propogate(self, desired_outputs):
+    def back_propagate(self, desired_outputs, step_size=0.1):
         """
-        Back propogate the gradients
+        Back propagate the gradients
         """
         for output_neuron, desired_output in zip(self.neurons[-1], desired_outputs):
-            output_neuron.back_propogate(desired_output)
+            output_neuron.back_propagate(desired_output, step_size=step_size)
 
-        for layer in self.neurons[1:-1:-1]:
+        for layer in self.neurons[-2:0:-1]:
             for neuron in layer:
-                neuron.back_propogate()
+                neuron.back_propagate(step_size=step_size)
 
-    def update_weights(self, step_size=0.1):
+    def set_new_weights(self):
         """
         Update the weights
         """
         for layer in self.neurons[1:]:
             for neuron in layer:
-                neuron.update_weights(step_size)
+                neuron.set_new_weights()
 
     def quick_calculate(self, inputs):
         """
