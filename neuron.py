@@ -94,7 +94,12 @@ class Neuron:
         for i in range(len(self.input_weights)):
             self.new_input_weights[i] -= self.inputs[i].fire() * self.back_propagate_value * step_size
         self.new_bias -= self.back_propagate_value * step_size
-        
+
+    def __str__(self):
+        """
+        Stringify this object
+        """
+        return "Neuron(weights={}, bias={})".format(self.input_weights, self.bias)
 
 class Input:
     """
@@ -112,6 +117,9 @@ class Input:
 
     def fire(self):
         return self.value
+
+    def __str__(self):
+        return "Input()"
 
 class OutputNeuron(Neuron):
     """

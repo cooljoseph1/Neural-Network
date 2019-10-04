@@ -82,3 +82,19 @@ class Network:
         """
         self.reset()
         return self.compute_outputs(inputs)
+
+    def pretty_print(self):
+        """
+        Pretty print ourself
+        """
+        for i, layer in enumerate(self.neurons):
+            print("==================")
+            if i == 0:
+                print("Input nodes:")
+            elif i < len(self.neurons) - 1:
+                print("Layer {}:".format(i))
+            else:
+                print("Output nodes:")
+            
+            for neuron in layer:
+                print(neuron)

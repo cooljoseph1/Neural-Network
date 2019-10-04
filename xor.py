@@ -19,5 +19,4 @@ training_data = [
 
 xor_network = Network([2, 2, 2, 1])
 train(xor_network, training_data, step_size=5, desired_error=0.001, verbose=False)
-for sample in training_data:
-    print(xor_network.quick_calculate(sample[0]))
+xor_network.pretty_print()
