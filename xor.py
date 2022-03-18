@@ -17,6 +17,6 @@ training_data = [
     ([1, 1], [0]),
 ]
 
-xor_network = Network([2, 2, 2, 1])
+xor_network = Network([2, 2, 1])
 train(xor_network, training_data, step_size=5, desired_error=0.001, verbose=False)
 xor_network.pretty_print()
